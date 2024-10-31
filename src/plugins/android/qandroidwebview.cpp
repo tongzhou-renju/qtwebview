@@ -278,8 +278,6 @@ void QAndroidWebViewPrivate::onApplicationStateChanged(Qt::ApplicationState stat
         m_viewController.callMethod<void>("onPause");
 }
 
-QT_END_NAMESPACE
-
 static void c_onRunJavaScriptResult(JNIEnv *env,
                                     jobject thiz,
                                     jlong id,
@@ -481,6 +479,7 @@ static void c_onCookieRemoved(JNIEnv *env,
         Q_EMIT wc->cookieRemoved(QJniObject(domain).toString(), QJniObject(name).toString());
 }
 Q_DECLARE_JNI_NATIVE_METHOD(c_onCookieRemoved)
+QT_END_NAMESPACE
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* /* vm */, void* /*reserved*/)
 {
