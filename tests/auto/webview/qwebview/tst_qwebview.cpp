@@ -130,10 +130,23 @@ void tst_QWebView::loadHtml()
     QWebView view;
 #endif
     QCOMPARE(view.loadProgress(), 0);
-    view.loadHtml(QString("<html><head><title>WebViewTitle</title></head><body />"));
+    QSignalSpy loadChangedSingalSpy(&view, SIGNAL(loadingChanged(const QWebViewLoadRequestPrivate &)));
+    const QByteArray content(
+            QByteArrayLiteral("<html><title>WebViewTitle</title>"
+                              "<body><span style=\"color:#ff0000\">Hello</span></body></html>"));
+    view.loadHtml(content);
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), QStringLiteral("WebViewTitle"));
+    QTRY_COMPARE(loadChangedSingalSpy.size(), 2);
+    // take load finished
+    const QWebViewLoadRequestPrivate &lr = loadChangedSingalSpy.at(1).at(0).value<QWebViewLoadRequestPrivate>();
+    QCOMPARE(lr.m_status, QWebView::LoadSucceededStatus);
+
+    QByteArray encoded("data:text/html;charset=UTF-8,");
+    encoded.append(content.toPercentEncoding());
+    QVERIFY(view.url().isValid());
+    QCOMPARE(QUrl(encoded), view.url());
 }
 
 void tst_QWebView::loadRequest()
