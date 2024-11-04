@@ -411,7 +411,6 @@ static void c_onReceivedTitle(JNIEnv *env,
     QAndroidWebViewPrivate *wc = reinterpret_cast<QAndroidWebViewPrivate *>(id);
     if (!g_webViews->contains(wc))
         return;
-
     const QString &qTitle = QJniObject(title).toString();
     Q_EMIT wc->titleChanged(qTitle);
 }
