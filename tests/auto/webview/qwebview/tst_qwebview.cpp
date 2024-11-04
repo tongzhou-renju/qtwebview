@@ -105,7 +105,7 @@ void tst_QWebView::runJavaScript()
     QQmlEngine::setContextForObject(&view, rootContext);
 
     QCOMPARE(view.loadProgress(), 0);
-    view.loadHtml(QString("<html><head><title>%1</title></head><body /></html>").arg(title));
+    view.loadHtml(QString("<html><head><title>%1</title></head><body/></html>").arg(title));
     QTRY_COMPARE(view.loadProgress(), 100);
     QTRY_VERIFY(!view.isLoading());
     QCOMPARE(view.title(), title);
@@ -144,7 +144,7 @@ void tst_QWebView::loadRequest()
         QVERIFY2(file.open(),
                  qPrintable(QStringLiteral("Cannot create temporary file:") + file.errorString()));
 
-        file.write("<html><head><title>FooBar</title></head><body />");
+        file.write("<html><head><title>FooBar</title></head><body/></html>");
         const QString fileName = file.fileName();
         file.close();
 #ifdef QT_WEBVIEW_WEBENGINE_BACKEND
