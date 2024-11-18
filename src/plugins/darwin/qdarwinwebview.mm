@@ -263,6 +263,23 @@ decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
     Q_UNUSED(context);
     if ([keyPath isEqualToString:@"estimatedProgress"]) {
         Q_EMIT qDarwinWebViewPrivate->loadProgressChanged(qDarwinWebViewPrivate->loadProgress());
+    } else if ([keyPath isEqualToString:@"title"]) {
+        Q_EMIT qDarwinWebViewPrivate->titleChanged(qDarwinWebViewPrivate->title());
+    }
+}
+
+/*
+ * 处理服务器身份验证，信任自颁发的证书
+ * https://developer.apple.com/documentation/foundation/nsurlauthenticationmethodservertrust?language=objc
+ */
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+        completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
+                                    NSURLCredential * _Nullable credential))completionHandler {
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+    } else {
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
 
@@ -278,9 +295,14 @@ QDarwinWebViewPrivate::QDarwinWebViewPrivate(QObject *p)
 #endif
 {
     CGRect frame = CGRectMake(0.0, 0.0, 400, 400);
-    wkWebView = [[WKWebView alloc] initWithFrame:frame];
+    WKWebViewConfiguration *conf = [[WKWebViewConfiguration new] autorelease];
+    conf.allowsInlineMediaPlayback = YES;
+    wkWebView = [[WKWebView alloc] initWithFrame:frame configuration:conf];
     wkWebView.navigationDelegate = [[QtWKWebViewDelegate alloc] initWithQAbstractWebView:this];
     [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"estimatedProgress"
+                   options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)
+                   context:nil];
+    [wkWebView addObserver:wkWebView.navigationDelegate forKeyPath:@"title"
                    options:NSKeyValueObservingOptions(NSKeyValueObservingOptionNew)
                    context:nil];
 
