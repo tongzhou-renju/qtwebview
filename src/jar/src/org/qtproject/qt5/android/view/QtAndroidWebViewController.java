@@ -58,6 +58,9 @@ import java.lang.reflect.Method;
 import android.os.Build;
 import java.util.concurrent.TimeUnit;
 
+import com.thinker.sfe.Constants;
+import com.thinker.sfe.CallbackStore;
+
 public class QtAndroidWebViewController
 {
     private final Activity m_activity;
@@ -202,6 +205,35 @@ public class QtAndroidWebViewController
         {
             callback.invoke(origin, m_hasLocationPermission, false);
         }
+
+        @Override
+        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+            if (!(m_activity instanceof CallbackStore)) {
+                return false;
+            }
+
+            if (Log.isLoggable("sfe-mobile", Log.DEBUG)) {
+                String s = String.format("choose file: mode(%d), capture(%b), types(%s)",
+                    fileChooserParams.getMode(),
+                    fileChooserParams.isCaptureEnabled(),
+                    String.join(", ", fileChooserParams.getAcceptTypes()));
+                Log.i("sfe-mobile", s);
+            }
+
+            CallbackStore cbStore = (CallbackStore)m_activity;
+            cbStore.setFilePathCallback(filePathCallback);
+
+            Intent intent = fileChooserParams.createIntent();
+            try {
+                m_activity.startActivityForResult(intent, Constants.FILE_CHOOSER_REQUEST_CODE);
+            } catch (Exception e) {
+                Log.e("sfe-mobile", "File chooser not supported");
+                return false;
+            }
+
+            return true;
+        }
+
     }
 
     public QtAndroidWebViewController(final Activity activity, final long id)

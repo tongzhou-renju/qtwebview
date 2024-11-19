@@ -6,7 +6,9 @@ DESTDIR = $$MODULE_BASE_OUTDIR/jar
 
 JAVACLASSPATH += $$PWD/src
 
-JAVASOURCES += $$PWD/src/org/qtproject/qt5/android/view/QtAndroidWebViewController.java
+JAVASOURCES += $$PWD/src/org/qtproject/qt5/android/view/QtAndroidWebViewController.java \
+    $$PWD/src/com/thinker/sfe/Constants.java \
+    $$PWD/src/com/thinker/sfe/CallbackStore.java
 
 # install
 target.path = $$[QT_INSTALL_PREFIX]/jar
